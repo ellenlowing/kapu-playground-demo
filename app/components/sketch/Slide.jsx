@@ -87,6 +87,8 @@ export default class Slide {
             }
             this.pathLengthOffset = this.pathLength / this.numProductsDisplayed;
             this.scrollProgress = this.scrollPerPage[this.name];
+            this.targetScrollProgress = this.scrollProgress;
+            this.scrolling = false;
             this.totalToMaxNumDisplayRatio = this.numProducts / this.numProductsDisplayed;
             this.leadingProductIndex = 0;
             this.lastProductIndex = (this.leadingProductIndex + this.numProductsDisplayed - 1) % this.numProducts;
@@ -196,9 +198,21 @@ export default class Slide {
     update() {
         if(this.slideInitialized) {
             if(this.caterpillarIndicatorHovered) {
-                this.scrollProgress += 10;
+                this.targetScrollProgress += 10;
             }
     
+            // One eased position drives the thumbnails and caterpillar together.
+            // Exponential damping preserves the feel across frame rates.
+            const remaining = this.targetScrollProgress - this.scrollProgress;
+            const dt = Math.min(this.p5.deltaTime || 16.67, 64);
+            const alpha = 1 - Math.exp(-dt / 130);
+            const maxStep = this.pathLengthOffset * 0.45;
+            this.scrollProgress += Math.max(-maxStep, Math.min(maxStep, remaining * alpha));
+            if (Math.abs(this.targetScrollProgress - this.scrollProgress) < 0.05) {
+                this.scrollProgress = this.targetScrollProgress;
+            }
+            this.scrolling = Math.abs(this.targetScrollProgress - this.scrollProgress) > 0.5;
+
             const scrollThreshold = (this.pathLength * (1 + this.totalToMaxNumDisplayRatio * this.productsDisplayCountList[this.leadingProductIndex]) + this.leadingProductIndex * this.pathLengthOffset);
             const reverseScrollThreshold = this.pathLength * (1 + this.totalToMaxNumDisplayRatio * this.productsDisplayCountList[this.lastProductIndex]) + this.pathLengthOffset * (this.lastProductIndex - this.numProductsDisplayed);
     
@@ -294,7 +308,7 @@ export default class Slide {
 
     setScrollProgress(clientX) {
         let caterpillarHoverProgress = this.p5.constrain((clientX - this.caterpillarBbox.x) / this.caterpillarBbox.width, 0, 1);
-        this.scrollProgress = caterpillarHoverProgress * this.pathLengthOffset * this.numProducts;
+        this.targetScrollProgress = caterpillarHoverProgress * this.pathLengthOffset * this.numProducts;
     }
 
     hideCaterpillarCTA() {

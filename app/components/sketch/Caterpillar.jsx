@@ -5,7 +5,8 @@ export default class Caterpillar {
         this.p5 = p5;
         this.rc = rc;
         this.pos = p5.createVector(x, y); // head position of caterpillar
-        this.vel = p5.createVector(0, 0);
+        const heading = p5.random(Math.PI * 2);
+        this.vel = p5.createVector(Math.cos(heading), Math.sin(heading));
         this.acc = p5.createVector(0, 0);
         this.maxSpeed = this.p5.random(2, 5);
         this.maxForce = this.p5.random(0.1, 0.5);

@@ -1,7 +1,7 @@
 import {useLoaderData} from '@remix-run/react';
-import {json} from '@shopify/remix-oxygen';
+import {collections} from '../../data/demo';
 import ProductGrid from '../../components/ProductGrid';
-import {AnalyticsPageType} from '@shopify/hydrogen';
+
 
 const seo = ({data}) => ({
     title: data?.collection?.title,
@@ -11,28 +11,10 @@ export const handle = {
     seo,
 };
 
-export async function loader({params, context}) {
-  const {handle} = params;
-  const {collection} = await context.storefront.query(COLLECTION_QUERY, {
-    variables: {
-      handle,
-    },
-  });
-
-  // Handle 404s
-  if (!collection) {
-    throw new Response(null, {status: 404});
-  }
-
-  // json is a Remix utility for creating application/json responses
-  // https://remix.run/docs/en/v1/utils/json
-  return json({
-    collection,
-    analytics: {
-      pageType: AnalyticsPageType.collection,
-      collections: [collection]
-    }
-  });
+export function loader({params}) {
+  const collection = collections.find(item => item.handle === params.handle);
+  if (!collection) throw new Response('Collection not found', {status: 404});
+  return {collection};
 }
 
 export default function Collection() {
@@ -50,41 +32,3 @@ export default function Collection() {
     </>
   );
 }
-
-const COLLECTION_QUERY = `#graphql
-  query CollectionDetails($handle: String!) {
-    collection(handle: $handle) {
-        title
-        description
-        handle
-        products(first: 20) {
-            nodes {
-                id
-                title
-                publishedAt
-                handle
-                variants(first: 1) {
-                    nodes {
-                        id
-                        availableForSale
-                        image {
-                            url
-                            altText
-                            width
-                            height
-                        }
-                        price {
-                            amount
-                            currencyCode
-                        }
-                        compareAtPrice {
-                            amount
-                            currencyCode
-                        }
-                    }
-                }
-            }
-        }
-    }
-  }
-`;

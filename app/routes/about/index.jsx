@@ -1,5 +1,5 @@
 import { useLoaderData, Link } from "@remix-run/react";
-import {Image} from '@shopify/hydrogen';
+
 // import portrait from '../../../public/portrait.jpg';
 
 export const meta = () => {

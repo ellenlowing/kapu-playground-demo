@@ -398,3 +398,9 @@
     }
   }
 }
+
+/* Only the drawn category shapes and labels are home navigation targets. */
+#grid-links, .grid-link, .grid-link-svg { pointer-events: none; }
+.grid-link .grid-link-path { pointer-events: all; }
+.grid-link span { pointer-events: auto; }
+#loading-text { pointer-events: none; }

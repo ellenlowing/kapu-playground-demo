@@ -1,7 +1,7 @@
 import {Link, useLocation, useSearchParams, useTransition} from '@remix-run/react';
 import { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownToggle from 'react-bootstrap/esm/DropdownToggle';
+import DropdownToggle from 'react-bootstrap/DropdownToggle';
 
 export default function ProductOptions({options, selectedVariant}) {
   // pathname and search will be used to build option URLs

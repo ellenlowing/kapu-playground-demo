@@ -101,37 +101,28 @@ export default class Habitat {
     // input: pos (caterpillar head)
     findClosestPixel(pos) {
 
-        for(let d = 0; d < 10; d++) {
-            let w = (pos.x - d) ;
-            let e = (pos.x + d) ;
-            let n = (pos.y - d) ;
-            let s = (pos.y + d) ;
-
-            for(let x = pos.x-d; x <= pos.x+d; x++) {
-                let isColoredN = this.checkPixelColor(x, n);
-                if(isColoredN) {
-                    return this.p5.createVector(x, n);
+        // Choose uniformly among nearby pixels instead of always checking
+        // the top-left edge first. Skip the head's own pixel.
+        for (let d = 1; d < 10; d++) {
+            let target = null;
+            let matches = 0;
+            const consider = (x, y) => {
+                if (this.checkPixelColor(x, y)) {
+                    matches++;
+                    if (this.p5.random(matches) < 1) target = this.p5.createVector(x, y);
                 }
-
-                let isColoredS = this.checkPixelColor(x, s);
-                if(isColoredS) {
-                    return this.p5.createVector(x, s);
-                }
-                
+            };
+            for (let offset = -d; offset <= d; offset++) {
+                consider(pos.x + offset, pos.y - d);
+                consider(pos.x + offset, pos.y + d);
             }
-            for(let y = pos.y-d; y <= pos.y+d; y++) {
-                let isColoredE = this.checkPixelColor(e, y);
-                if(isColoredE) {
-                    return this.p5.createVector(e, y);
-                }
-
-                let isColoredW = this.checkPixelColor(w, y);
-                if(isColoredW) {
-                    return this.p5.createVector(w, y);
-                }
+            for (let offset = -d + 1; offset < d; offset++) {
+                consider(pos.x - d, pos.y + offset);
+                consider(pos.x + d, pos.y + offset);
             }
+            if (target) return target;
         }
-        
+
         // let randompos = this.p5.createVector(this.p5.random(pos.x - 100, pos.x + 100), this.p5.random(pos.y - 100, pos.y + 100));
         let randompos = this.p5.createVector(this.p5.noise(pos.x * 0.1, this.p5.millis() * 0.01) * 20 - 10 + pos.x, this.p5.noise(pos.y * 0.1, this.p5.millis() * 0.01) * 20 - 10 + pos.y);
 

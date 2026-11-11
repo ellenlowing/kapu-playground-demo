@@ -1,5 +1,5 @@
 import {Link} from '@remix-run/react';
-import {Image, Money} from '@shopify/hydrogen';
+import {Image, Money} from './DemoMedia';
 import {isMobile} from 'react-device-detect';
 
 export default function ProductCard({product, dataIndex}) {

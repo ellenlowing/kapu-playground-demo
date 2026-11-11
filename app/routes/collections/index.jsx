@@ -1,5 +1,6 @@
 import { useLoaderData, Link } from "@remix-run/react";
-import {Image} from '@shopify/hydrogen';
+import {Image} from '../../components/DemoMedia';
+import {collections} from '../../data/demo';
 
 export const meta = () => {
     return {
@@ -8,14 +9,12 @@ export const meta = () => {
     };
 };
 
-export async function loader({context}) {
-    return await context.storefront.query(COLLECTIONS_QUERY);
-}
+export function loader() { return {collections: {nodes: collections}}; }
 
 export default function Collections() {
     const {collections} = useLoaderData();
     return (
-        <section className="w-full gap-4">
+        <section className="w-full gap-4 px-6 pt-24 pb-24">
             <h2 className="whitespace-pre-wrap max-w-prose font-bold text-lead">
                 Collections
             </h2>
@@ -46,21 +45,3 @@ export default function Collections() {
         </section>
     );
 }
-
-const COLLECTIONS_QUERY = `#graphql
-  query FeaturedCollections {
-    collections(first: 10, query: "collection_type:smart") {
-      nodes {
-        id
-        title
-        handle
-        image {
-            altText
-            width
-            height
-            url
-        }
-      }
-    }
-  }
-`;

@@ -8,18 +8,16 @@ import {useLocation} from "react-router-dom";
 export function Layout({children, title}) {
     const {cart} = useLoaderData();
     const [loading, setLoading] = useState(true);
-    const [isHome, setIsHome] = useState(false);
     const [pageLoaded, setPageLoaded] = useState(false);
     const location = useLocation();
+    const isHome = location.pathname === "/";
 
     useEffect(() => {
       if(location.pathname == '/') {
-        setIsHome(true);
         setTimeout(() => {
           setLoading(false);
         }, 1500);
       } else {
-        setIsHome(false);
         setLoading(false);
       }
 
@@ -41,6 +39,9 @@ export function Layout({children, title}) {
       <div className="flex flex-col min-h-screen antialiased">
         <header
           role="banner"
+          aria-hidden={isHome}
+          inert={isHome ? "" : undefined}
+          style={{visibility: isHome ? "hidden" : "visible", pointerEvents: isHome ? "none" : "auto"}}
           className={`absolute items-center h-20 z-[60] top-0 justify-between leading-none p-1 antialiased transition`}
         >
           <Link className={`h-full ${isHome ? 'hidden' : 'visible'} transition-opacity ease-in-out duration-[500ms] ${pageLoaded ? 'opacity-100' : 'opacity-0'}`} to="/">

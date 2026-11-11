@@ -1,6 +1,6 @@
 import {useEffect, useState, lazy, Suspense} from "react";
 import { useLoaderData, Link } from "@remix-run/react";
-import rough from 'roughjs/bin/rough';
+import rough from 'roughjs/bundled/rough.esm.js';
 const ReactP5Wrapper = lazy(() => 
   import('react-p5-wrapper').then(module => ({
     default: module.ReactP5Wrapper
@@ -19,14 +19,6 @@ import Cloud from './Cloud';
 import BubbleEmitter from './BubbleEmitter';
 import Sparkle from './Sparkle';
 import Habitat from './Habitat';
-
-export async function loader({context}) {
-    const {product} = await context.storefront.query(FEATURED_PRODUCT_QUERY);
-  
-    return json({
-        product
-    });
-  }
 
 export default function Sketch() {
     const {product} = useLoaderData();
@@ -264,7 +256,6 @@ function sketch(p5) {
         }
 
         if(urlPath.indexOf('collections') != -1 && urlPath.length > 1) {
-            slide.scrolling = false;
             if(!slide.freezeScroll && slide.svg) {
                 slide.update();
             }
@@ -389,17 +380,22 @@ function sketch(p5) {
         }
     }
 
+    let lastHomeTouch = 0;
+    function addHomeCaterpillar(e, x, y) {
+        if (p5.getURLPath().length !== 0 || e.target.closest?.('.grid-link')) return;
+        habitat.caterpillars.push(new Caterpillar(p5, rc, x, y, habitat.caterpillars.length));
+    }
+
     p5.mousePressed = (e) => {
-        const urlPath = p5.getURLPath();
-        if(urlPath.length == 0) {
-            habitat.caterpillars.push(new Caterpillar(p5, rc, p5.mouseX, p5.mouseY, habitat.caterpillars.length));
+        if (Date.now() - lastHomeTouch > 500) {
+            addHomeCaterpillar(e, e.clientX ?? p5.mouseX, e.clientY ?? p5.mouseY);
         }
     }
 
     p5.mouseWheel = (e) => {
-        if(!slide.freezeScroll && slide.svg) {
+        if(p5.getURLPath()[0] === 'collections' && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
-            slide.scrollProgress += p5.constrain(e.delta, -30, 30);
+            slide.targetScrollProgress += p5.constrain(e.delta, -30, 30);
             hide(slide.selectedProductInfo);
             logo.style.transform = `rotate(${logoAngle}deg)`;
             logoAngle += Math.sign(e.delta) * 0.5;
@@ -408,9 +404,14 @@ function sketch(p5) {
     }
 
     p5.touchStarted = (e) => {
+        if (p5.getURLPath().length === 0 && e.touches?.length) {
+            lastHomeTouch = Date.now();
+            addHomeCaterpillar(e, e.touches[0].clientX, e.touches[0].clientY);
+            return;
+        }
         // e.preventDefault();
         console.log("main loop touch started", e.target.classList);
-        if(e.touches && !slide.freezeScroll && slide.svg) {
+        if(p5.getURLPath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
             startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
         } else if (slide.activeIndex != null && !e.target.classList.contains('product-image')) {
@@ -423,10 +424,11 @@ function sketch(p5) {
     p5.touchMoved = (e) => {
         // e.preventDefault();
         console.log("main loop touch moved");
-        if(e.touches && !slide.freezeScroll && slide.svg) {
+        if(p5.getURLPath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
             let movedTouch = p5.createVector(startTouch.x - e.touches[0].clientX, startTouch.y - e.touches[0].clientY);
-            slide.scrollProgress += p5.constrain(movedTouch.y, -20, 20);
+            slide.targetScrollProgress += p5.constrain(movedTouch.y, -20, 20);
+            startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
             logo.style.transform = `rotate(${logoAngle}deg)`;
             logoAngle += Math.sign(movedTouch.y) * 0.5;
             slide.scrolling = true;
@@ -522,26 +524,3 @@ function sketch(p5) {
         slide.secondaryColor = secondaryColors[pathIndex];
     }
 }
-
-const FEATURED_PRODUCT_QUERY = `#graphql
-query FeaturedProduct {
-    product(handle: "featured-page") {
-            id
-            title
-            media(first: 10) {
-                nodes {
-                    ... on MediaImage {
-                    mediaContentType
-                            image {
-                                id
-                                url
-                                altText
-                                width
-                                height
-                            }
-                    }
-                }
-            }
-    }
-}
-`;

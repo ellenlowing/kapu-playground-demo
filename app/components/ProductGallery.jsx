@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {MediaFile} from '@shopify/hydrogen-react';
+import {Image} from './DemoMedia';
 
 export default function ProductGallery({media}) {
     const [index, setIndex] = useState(0);
@@ -50,15 +50,12 @@ export default function ProductGallery({media}) {
                 };
 
                 return (
-                    <MediaFile
+                    <Image
                         key={`product-image-${i}`}
                         tabIndex="0"
                         className={`product-carousel-image w-100 shadow mx-auto ${i == index ? 'block' : 'hidden'}`}
-                        data={data}
+                        data={med.image}
                         loading='eager'
-                        options={{
-                        crop: 'center',
-                        }}
                         {...extraProps}
                     />
                 );

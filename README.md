@@ -1,41 +1,36 @@
-# Kapu's Playground
+# Kapu Playground Demo
 
-An interactive storefront for Kapu: a playground and shop where you watch caterpillars munch and slide glass.
+Local demo adapted from https://github.com/ellenlowing/kapu-glass-hydrogen.
+The original animated playground, navigation, typography, and checked-in photographs are preserved. All catalog content is local; no Shopify account, credentials, API, analytics, or checkout is used.
 
-## Libraries + Frameworks
+## Run locally
 
-- `Hydrogen`: Shopify's framework that contains Remix optimized components and integrated Storefront API
-- `Remix`: for smooth data fetching and rendering
-- `GraphQL`: for querying Shopify data
-- `p5.js`: for its neat vector math support
-- `Rough.js`: for the hipness purgatory look
-- `TailwindCSS`: for styling
-- `React`
-- `Node.js`
-- `JavaScript`
+Use Node.js 22 LTS and npm.
 
-## Interaction
+```sh
+npm install
+npm run dev
+```
 
-#### Scroll and slide
+For a production preview:
 
-![cloud](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExamhnaDkybWowczhucWN0NHJ5cXdjNHN4N3JraGttOGtjNG5mcHloMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BXqvz19RM2Cyllpe3m/giphy-downsized-large.gif)
-![star](https://media.giphy.com/media/YnRDIyuNwBOud2qYQT/giphy-downsized.gif)
+```sh
+npm run build
+npm start
+```
 
-Every collection page features a different slide and illustrations. Only 3 products are displayed at a time, and to view other products, you'd have to scroll or drag on the little caterpillar UI at the bottom. 
+The default address is http://localhost:3000. Set `PORT` to change it.
 
-Each slide shape is saved in an SVG, so the positions on slide can be obtained by calling `getPointAtLength`.
+## Edit demo content
 
-#### Caterpillars
+`app/data/demo.js` contains the five collections, placeholder products, descriptions, prices, and photo mappings. Photos are bundled from `app/img/`. Product pages and collection navigation work locally; the cart explains that checkout is unavailable. The original About copy and design credits remain.
 
-![caterpillars](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjVvczlyOG5xamVuOGc1dDRsdmhhbWsxOWk5cHoyZ280MTE1amIycSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BHL1gJGg0hPI8Gt881/giphy-downsized.gif)
+This checkout is on `demo/local-content`. The original GitHub repository is retained as the upstream remote for reference. The old Oxygen deployment workflow has been removed; this demo has not been published. Future hosting will need a Node server that runs `npm start` and serves `public/`.
 
-Caterpillars "munch" at the featured images on the homepage. 
+The project retains Remix 1 and its original animation libraries to preserve the design. Modernizing that dependency stack is separate from this demo conversion.
 
-The caterpillars search for nontransparent pixels in their proximity and move towards colors, or simply pick random direction if it's in the wild (no colored pixels around). Their movements are stored in a buffer and used to mask another buffer of featured images. The result is then rendered directly on the homepage.
+## Recovered catalog images
 
-#### Butterfly cursor
+The demo now uses 23 recovered products across Vessels (8), Accessories (3), Magazine (1), Workshop (1), and Archive (10). Original product names and image galleries are restored where available; descriptions and prices remain placeholders.
 
-![butterfly](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3VvenV0ZHFzdG9hYXI1NTcydHRoc2VhYW0wbnV4NzN0NTFuZDFnayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/q08qjGDYc2zhDc78i1/giphy.gif)
-
-There's a shape shifting butterfly, procedurally generated with p5.js, that follows the mouse on web.
-
+`app/data/recovered.json` records the source page, image source URLs, and assignment evidence. Images are stored locally under `public/images/recovered/<collection>/`. Most assignments come directly from archived collection metadata. The three accessories are inferred from identifiable bracelet, cap, and necklace images on the archived homepage. This is a partial reconstruction, not a complete historical catalog.
