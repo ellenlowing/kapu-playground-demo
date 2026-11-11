@@ -297,6 +297,7 @@ export default class Slide {
     
             // draw help text
             if(this.roughBboxStyle.strokeWidth > 0) {
+                this.updateHelpGeometry();
                 this.rc.curve(this.helpPoints, this.roughBboxStyle);
             }
         }
@@ -348,13 +349,26 @@ export default class Slide {
         
         // resize caterpillar things
         this.caterpillarBbox = this.caterpillarIndicator.getBoundingClientRect();
-        this.caterpillarHelpBbox = this.caterpillarHelpText.getBoundingClientRect(); // incorrect on load if page is loaded on other pages first
-        this.caterpillarHelpDisplayOffset = this.p5.createVector(this.caterpillarHelpBbox.x, this.caterpillarHelpBbox.y);
+        this.updateHelpGeometry();
+    }
+
+    updateHelpGeometry() {
+        if (!this.caterpillarHelpText?.isConnected) return;
+        const bounds = this.caterpillarHelpText.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return;
+        const previous = this.caterpillarHelpBbox;
+        if (previous && ['x', 'y', 'width', 'height'].every(key => previous[key] === bounds[key])) return;
+
+        // Fonts and fullscreen layout can settle after the canvas initializes.
+        // Match the live text bounds rather than keeping the first measurement.
+        this.caterpillarHelpBbox = bounds;
+        const offset = this.p5.createVector(bounds.x, bounds.y);
         this.helpPoints = [];
-        for(let i = 0; i <= slideSteps; i++) {
-            let pt = this.caterpillarHelpPath.getPointAtLength(i * this.caterpillarHelpPathLength / slideSteps);
-            pt = this.mapPoint(pt, this.caterpillarHelpDisplayOffset, this.caterpillarHelpBbox.width, this.caterpillarHelpBbox.height, this.caterpillarHelpAttrW, this.caterpillarHelpAttrH);
-            this.helpPoints.push([pt.x, pt.y]);
+        const steps = 40;
+        for (let i = 0; i <= steps; i++) {
+            const point = this.caterpillarHelpPath.getPointAtLength(i * this.caterpillarHelpPathLength / steps);
+            const mapped = this.mapPoint(point, offset, bounds.width, bounds.height, this.caterpillarHelpAttrW, this.caterpillarHelpAttrH);
+            this.helpPoints.push([mapped.x, mapped.y]);
         }
     }
 
