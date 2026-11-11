@@ -441,8 +441,8 @@ function sketch(p5) {
         }
         const dy = startTouch.y - touch.clientY;
         // SVG paths use much larger coordinates than the phone viewport.
-        // About a third-screen swipe advances one product, regardless of path.
-        const sensitivity = slide.pathLengthOffset / Math.max(120, p5.height * 0.3);
+        // A little over a third-screen swipe advances one product.
+        const sensitivity = slide.pathLengthOffset / Math.max(144, p5.height * 0.36);
         const distance = dy * sensitivity;
         const elapsed = Math.max(8, now - lastTouchTime);
         touchVelocity = touchVelocity * 0.35 + distance / elapsed * 0.65;
@@ -459,7 +459,7 @@ function sketch(p5) {
 
     p5.touchEnded = () => {
         if (touchDragging && getRoutePath()[0] === 'collections' && performance.now() - lastTouchTime < 100) {
-            const limit = slide.pathLengthOffset * 0.8;
+            const limit = slide.pathLengthOffset * 0.65;
             slide.targetScrollProgress += p5.constrain(touchVelocity * 100, -limit, limit);
         }
         startTouch = null;
