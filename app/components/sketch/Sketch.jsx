@@ -75,6 +75,10 @@ function sketch(p5) {
 
     // touch
     let startTouch;
+    let touchOrigin;
+    let touchDragging = false;
+    let touchVelocity = 0;
+    let lastTouchTime = 0;
 
     // star
     let fallingStars;
@@ -251,6 +255,7 @@ function sketch(p5) {
             }
 
             const body = document.getElementsByTagName('body')[0];
+            body.style.touchAction = urlPath[0] === 'collections' ? 'none' : 'auto';
             if(urlPath[0] == 'products' || urlPath[0] == 'cart' || urlPath == 'about') {
                 body.style.overflow = 'auto';
             } else {
@@ -413,30 +418,54 @@ function sketch(p5) {
             addHomeCaterpillar(e, e.touches[0].clientX, e.touches[0].clientY);
             return;
         }
-        // e.preventDefault();
-        console.log("main loop touch started", e.target.classList);
-        if(getRoutePath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
-            p5.loop();
-            startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
-        } else if (slide.activeIndex != null && !e.target.classList.contains('product-image')) {
-            // console.log()
-            slide.productsNodeList[slide.activeIndex].style.transform = 'scale(1)';
-            slide.mouseLeaveHandler();
-        }
+        if (getRoutePath()[0] !== 'collections' || !slide.slideInitialized || e.touches?.length !== 1) return;
+        // The caterpillar has its own absolute-position drag control.
+        if (e.target.closest?.('#caterpillar-indicator, #nav')) return;
+        startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
+        touchOrigin = startTouch.copy();
+        touchDragging = false;
+        touchVelocity = 0;
+        lastTouchTime = performance.now();
     }
 
     p5.touchMoved = (e) => {
-        // e.preventDefault();
-        console.log("main loop touch moved");
-        if(getRoutePath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
-            p5.loop();
-            let movedTouch = p5.createVector(startTouch.x - e.touches[0].clientX, startTouch.y - e.touches[0].clientY);
-            slide.targetScrollProgress += p5.constrain(movedTouch.y, -20, 20);
-            startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
-            logo.style.transform = `rotate(${logoAngle}deg)`;
-            logoAngle += Math.sign(movedTouch.y) * 0.5;
-            slide.scrolling = true;
+        if (getRoutePath()[0] !== 'collections' || !slide.slideInitialized || !startTouch || e.touches?.length !== 1) return;
+        const touch = e.touches[0];
+        const now = performance.now();
+        if (!touchDragging && Math.hypot(touch.clientX - touchOrigin.x, touch.clientY - touchOrigin.y) < 8) return;
+        if (!touchDragging) {
+            // A swipe on a highlighted thumbnail should scroll, not stay frozen.
+            for (const product of slide.productsNodeList) product.style.transform = 'scale(1)';
+            slide.mouseLeaveHandler();
+            touchDragging = true;
         }
+        const dy = startTouch.y - touch.clientY;
+        // SVG paths use much larger coordinates than the phone viewport.
+        // About a third-screen swipe advances one product, regardless of path.
+        const sensitivity = slide.pathLengthOffset / Math.max(120, p5.height * 0.3);
+        const distance = dy * sensitivity;
+        const elapsed = Math.max(8, now - lastTouchTime);
+        touchVelocity = touchVelocity * 0.35 + distance / elapsed * 0.65;
+        slide.targetScrollProgress += distance;
+        startTouch.set(touch.clientX, touch.clientY);
+        lastTouchTime = now;
+        hide(slide.selectedProductInfo);
+        logo.style.transform = `rotate(${logoAngle}deg)`;
+        logoAngle += Math.sign(dy) * 0.5;
+        slide.scrolling = true;
+        e.preventDefault();
+        return false;
+    }
+
+    p5.touchEnded = () => {
+        if (touchDragging && getRoutePath()[0] === 'collections' && performance.now() - lastTouchTime < 100) {
+            const limit = slide.pathLengthOffset * 0.8;
+            slide.targetScrollProgress += p5.constrain(touchVelocity * 100, -limit, limit);
+        }
+        startTouch = null;
+        touchOrigin = null;
+        touchDragging = false;
+        touchVelocity = 0;
     }
 
     p5.windowResized = () => {

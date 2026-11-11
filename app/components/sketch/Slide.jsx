@@ -205,7 +205,7 @@ export default class Slide {
             // Exponential damping preserves the feel across frame rates.
             const remaining = this.targetScrollProgress - this.scrollProgress;
             const dt = Math.min(this.p5.deltaTime || 16.67, 64);
-            const alpha = 1 - Math.exp(-dt / 130);
+            const alpha = 1 - Math.exp(-dt / (isMobile ? 65 : 130));
             const maxStep = this.pathLengthOffset * 0.45;
             this.scrollProgress += Math.max(-maxStep, Math.min(maxStep, remaining * alpha));
             if (Math.abs(this.targetScrollProgress - this.scrollProgress) < 0.05) {
