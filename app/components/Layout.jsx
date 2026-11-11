@@ -1,6 +1,6 @@
 import Sketch from "./sketch/Sketch";
-import logo from '../../public/logo.png';
-import {Link, useLoaderData} from '@remix-run/react';
+const logo = import.meta.env.BASE_URL + 'logo.png';
+import {Link, useLoaderData} from 'react-router-dom';
 import {isMobile} from 'react-device-detect';
 import {useEffect, useState} from 'react';
 import {useLocation} from "react-router-dom";

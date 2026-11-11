@@ -1,4 +1,4 @@
-import {useLoaderData} from '@remix-run/react';
+import {useLoaderData} from 'react-router-dom';
 import {collections} from '../../data/demo';
 import ProductGrid from '../../components/ProductGrid';
 

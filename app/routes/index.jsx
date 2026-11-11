@@ -1,5 +1,5 @@
 import {isMobile} from 'react-device-detect';
-import {Link} from '@remix-run/react';
+import {Link} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 
 export const meta = () => {

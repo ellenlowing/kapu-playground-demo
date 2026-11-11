@@ -13,7 +13,7 @@ export const description = 'Lorem ipsum dolor sit amet, consectetur adipiscing e
 // remain demo placeholders; no Shopify service is used.
 export const collections = ['vessels', 'accessories', 'magazine', 'workshops', 'archive'].map(handle => {
   const nodes = recovered.filter(item => item.collection === handle).map((item, index) => {
-    const images = item.images.map(image => ({url: image.url, altText: image.altText || item.title}));
+    const images = item.images.map(image => ({url: import.meta.env.BASE_URL + image.url.replace(/^\//, ''), altText: image.altText || item.title}));
     const variant = {
       id: item.handle, availableForSale: true, image: images[0],
       price: {amount: String(40 + index * 15), currencyCode: 'USD'},

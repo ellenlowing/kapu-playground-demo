@@ -1,5 +1,5 @@
 import {products} from '../../data/demo';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData } from 'react-router-dom';
 import ProductOptions from '../../components/ProductOptions';
 import {Money} from '../../components/DemoMedia';
 import ProductGallery from '../../components/ProductGallery';

@@ -19,15 +19,26 @@ npm run build
 npm start
 ```
 
-The default address is http://localhost:3000. Set `PORT` to change it.
+The default address is http://localhost:3000. Edit `vite.config.js` to change the port.
 
 ## Edit demo content
 
 `app/data/demo.js` contains the five collections, placeholder products, descriptions, prices, and photo mappings. Photos are bundled from `app/img/`. Product pages and collection navigation work locally; the cart explains that checkout is unavailable. The original About copy and design credits remain.
 
-This checkout is on `demo/local-content`. The original GitHub repository is retained as the upstream remote for reference. The old Oxygen deployment workflow has been removed; this demo has not been published. Future hosting will need a Node server that runs `npm start` and serves `public/`.
+The original GitHub repository is retained as the upstream remote for reference. The demo uses Vite and React Router for a fully static build. The original animation libraries are preserved.
 
-The project retains Remix 1 and its original animation libraries to preserve the design. Modernizing that dependency stack is separate from this demo conversion.
+## GitHub Pages
+
+Pushes to `main` automatically build and deploy `dist/` through `.github/workflows/pages.yml`. GitHub Pages must use GitHub Actions as its publishing source. The workflow reads the Pages base path, so fonts, photos, and scripts work under the repository subdirectory. Navigation uses hash URLs (for example, `#/collections/vessels`) so shared product links survive refreshes without a server.
+
+To preview the hosted subdirectory locally:
+
+```sh
+BASE_PATH=/kapu-playground-demo/ npm run build
+npm start
+```
+
+Open http://localhost:3000/kapu-playground-demo/.
 
 ## Recovered catalog images
 

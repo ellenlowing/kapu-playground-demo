@@ -1,56 +1,15 @@
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useLoaderData
-} from '@remix-run/react';
-import styles from './styles/app.css';
-import customStyles from './styles/custom.css';
-import favicon from '../public/favicon.png';
+import {Link, Outlet, ScrollRestoration, useLoaderData, useRouteError} from 'react-router-dom';
 import {Layout} from './components/Layout';
-import bootstrapStyles from 'bootstrap/dist/css/bootstrap.min.css';
-import resetStyles from './styles/reset.css';
 import {featuredProduct} from './data/demo';
-
-export const links = () => {
-  return [
-    {rel: 'stylesheet', href: bootstrapStyles},
-    {rel: 'stylesheet', href: resetStyles},
-    {rel: 'icon', type: 'image/png', href: favicon},
-    {rel: 'stylesheet', href: styles},
-    {rel: 'stylesheet', href: customStyles},
-  ];
-};
-
-export const meta = () => ({
-  charset: 'utf-8',
-  viewport: 'width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no',
-  google: 'notranslate'
-});
 
 export function loader() {
   return {layout: {shop: {name: 'Kapu — Demo'}}, cart: null, product: featuredProduct};
 }
-
 export default function App() {
   const {layout} = useLoaderData();
-  const {name} = layout.shop;
-  return (
-    <html translate="no" lang="en">
-      <head>
-        <title>Kapu — Demo</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Layout title={name}>
-          <Outlet />
-        </Layout>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
+  return <><Layout title={layout.shop.name}><Outlet /></Layout><ScrollRestoration /></>;
+}
+export function ErrorPage() {
+  const error = useRouteError();
+  return <main className="p-6"><h1 className="fa text-4xl">{error?.status === 404 ? 'Page not found' : 'Something went wrong'}</h1><Link to="/">Return to the playground</Link></main>;
 }

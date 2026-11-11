@@ -1,4 +1,4 @@
-import {Link, useLocation, useSearchParams, useTransition} from '@remix-run/react';
+import {Link, useLocation, useSearchParams, useNavigation} from 'react-router-dom';
 import { useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from 'react-bootstrap/DropdownToggle';
@@ -7,7 +7,7 @@ export default function ProductOptions({options, selectedVariant}) {
   // pathname and search will be used to build option URLs
   const {pathname, search} = useLocation();
   const [currentSearchParams, setSearchParams] = useSearchParams({});
-  const transition = useTransition();
+  const transition = useNavigation();
   const [index, setIndex] = useState(0);
 
   const paramsWithDefaults = (() => {

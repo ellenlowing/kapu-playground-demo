@@ -1,4 +1,4 @@
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link } from "react-router-dom";
 import {Image} from '../../components/DemoMedia';
 import {collections} from '../../data/demo';
 

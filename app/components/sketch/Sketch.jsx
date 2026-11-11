@@ -1,5 +1,5 @@
 import {useEffect, useState, lazy, Suspense} from "react";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, Link } from "react-router-dom";
 import rough from 'roughjs/bundled/rough.esm.js';
 const ReactP5Wrapper = lazy(() => 
   import('react-p5-wrapper').then(module => ({
@@ -42,6 +42,10 @@ export default function Sketch() {
             }
         </>
     );
+}
+
+function getRoutePath() {
+    return window.location.hash.slice(1).split('?')[0].split('/').filter(Boolean);
 }
 
 function sketch(p5) {
@@ -194,7 +198,7 @@ function sketch(p5) {
     p5.draw = async () => {
 
         // if page change
-        const urlPath = p5.getURLPath();
+        const urlPath = getRoutePath();
 
         if(lastURLPath == null || !arrayEquals(urlPath, lastURLPath)) {
             const navLinks = document.getElementsByClassName('nav-link');
@@ -347,7 +351,7 @@ function sketch(p5) {
     p5.mouseMoved = (e) => {
         // butterfly
 
-        const urlPath = p5.getURLPath();
+        const urlPath = getRoutePath();
         if(urlPath.indexOf('products') != -1 || urlPath.indexOf('about') != -1 || urlPath.indexOf('cart') != -1) {
             let color;
             if(butterfly) {
@@ -382,7 +386,7 @@ function sketch(p5) {
 
     let lastHomeTouch = 0;
     function addHomeCaterpillar(e, x, y) {
-        if (p5.getURLPath().length !== 0 || e.target.closest?.('.grid-link')) return;
+        if (getRoutePath().length !== 0 || e.target.closest?.('.grid-link')) return;
         habitat.caterpillars.push(new Caterpillar(p5, rc, x, y, habitat.caterpillars.length));
     }
 
@@ -393,7 +397,7 @@ function sketch(p5) {
     }
 
     p5.mouseWheel = (e) => {
-        if(p5.getURLPath()[0] === 'collections' && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
+        if(getRoutePath()[0] === 'collections' && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
             slide.targetScrollProgress += p5.constrain(e.delta, -30, 30);
             hide(slide.selectedProductInfo);
@@ -404,14 +408,14 @@ function sketch(p5) {
     }
 
     p5.touchStarted = (e) => {
-        if (p5.getURLPath().length === 0 && e.touches?.length) {
+        if (getRoutePath().length === 0 && e.touches?.length) {
             lastHomeTouch = Date.now();
             addHomeCaterpillar(e, e.touches[0].clientX, e.touches[0].clientY);
             return;
         }
         // e.preventDefault();
         console.log("main loop touch started", e.target.classList);
-        if(p5.getURLPath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
+        if(getRoutePath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
             startTouch = p5.createVector(e.touches[0].clientX, e.touches[0].clientY);
         } else if (slide.activeIndex != null && !e.target.classList.contains('product-image')) {
@@ -424,7 +428,7 @@ function sketch(p5) {
     p5.touchMoved = (e) => {
         // e.preventDefault();
         console.log("main loop touch moved");
-        if(p5.getURLPath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
+        if(getRoutePath()[0] === 'collections' && e.touches?.length && slide.slideInitialized && !slide.freezeScroll && slide.svg) {
             p5.loop();
             let movedTouch = p5.createVector(startTouch.x - e.touches[0].clientX, startTouch.y - e.touches[0].clientY);
             slide.targetScrollProgress += p5.constrain(movedTouch.y, -20, 20);
@@ -437,7 +441,7 @@ function sketch(p5) {
 
     p5.windowResized = () => {
         p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
-        const urlPath = p5.getURLPath();
+        const urlPath = getRoutePath();
         if(urlPath.length == 0) {
             p5.background(bgColor);
             habitat.resize();
@@ -518,7 +522,7 @@ function sketch(p5) {
     }
 
     function setGradientCaterpillarColor() {
-        const urlPath = p5.getURLPath();
+        const urlPath = getRoutePath();
         const pathIndex = pathNameList.indexOf(urlPath[1]);
         document.documentElement.style.setProperty('--gradient-caterpillar-color', secondaryColors[pathIndex]);
         slide.secondaryColor = secondaryColors[pathIndex];
